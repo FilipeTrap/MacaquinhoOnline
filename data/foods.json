@@ -5,7 +5,7 @@
     "satiety": 80,
     "harm": 0,
     "happiness": 10,
-    "quantity": 0
+    "fruit": true
   },
   {
     "id": "pepino",
@@ -13,7 +13,7 @@
     "satiety": 50,
     "harm": 0,
     "happiness": 0,
-    "quantity": 0
+    "fruit": true
   },
   {
     "id": "casca",
@@ -21,6 +21,6 @@
     "satiety": 10,
     "harm": 1,
     "happiness": -10,
-    "quantity": 0
+    "fruit": false
   }
 ]

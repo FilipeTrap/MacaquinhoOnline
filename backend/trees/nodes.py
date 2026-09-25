@@ -6,7 +6,7 @@ Cada nó anota o que fez no log. A escolha da comida é o maior score, não uma 
 
 import logging
 
-from backend.engine.calculations import clamp_hunger, normalize, sigmoid
+from backend.engine.calculations import clamp_hunger, normalize, relieve_harm, relieve_joy, sigmoid
 
 logger = logging.getLogger("forest")
 
@@ -14,7 +14,8 @@ logger = logging.getLogger("forest")
 EATEN_GAIN = 0.25
 SEEN_GAIN = 0.05
 # Uma unidade de tempo. Igual para todos; o botão é quem avança.
-HUNGER_STEP = 10
+# Fome 100 é desespero: sobe devagar para dar tempo de sentir a escalada.
+HUNGER_STEP = 1
 # Muito pouco, de propósito. Agressão fica para quando a relação estiver baixa.
 RELATION_DROP = 0.02
 # Parte da experiência de ter comido comida ruim que passa a pesar contra.
@@ -157,20 +158,29 @@ class Experiencia:
 
 
 class Soma:
-    """Multiplica cada sinal pelo peso do agente e soma."""
+    """Multiplica cada sinal pelo peso do agente e soma.
+
+    Desespero (fome perto de 100) alivia dano/backlash de aversão — quanto mais
+    faminto, menos o agente liga pro gosto ruim. Felicidade boa satura com o
+    streak de refeições (feast): a segunda/terceira banana seguida rende menos.
+    """
 
     def tick(self, ctx: dict) -> None:
         weights = ctx["weights"]
         harm = ctx["harm"]
+        aversion_relief = 1 - ctx["hunger_norm"]
+        feast = ctx["agent"].get("feast", 0)
+
         hunger_part = ctx["hunger_norm"] * weights["hunger"]
         satiety_part = ctx["satiety_norm"] * weights["satiety"]
         environment_part = ctx["environment_weight"] * weights["environment"]
         social_part = ctx["social_signal"] * weights["social"]
         appetite = ctx["eaten"] * weights["eaten"] + ctx["seen"] * weights["seen"]
-        # Dano zera o gosto adquirido e ainda devolve uma parte contra quem já comeu.
-        experience_part = appetite * (1 - harm) - (ctx["eaten"] * weights["eaten"]) * harm * HARM_BACKLASH
-        harm_part = harm * weights.get("aversion", 0)
-        joy_part = ctx.get("joy", 0)
+        # Dano zera o gosto adquirido; o backlash também alivia com o desespero.
+        backlash = (ctx["eaten"] * weights["eaten"]) * harm * HARM_BACKLASH * aversion_relief
+        experience_part = appetite * (1 - harm) - backlash
+        harm_part = relieve_harm(harm, weights.get("aversion", 0), aversion_relief)
+        joy_part = relieve_joy(ctx.get("joy", 0), feast, aversion_relief)
         raw = (
             hunger_part
             + satiety_part
@@ -190,7 +200,7 @@ class Soma:
                 f"ambiente={environment_part:.3f} social={social_part:.3f} "
                 f"experiencia={experience_part:.3f} "
                 f"felicidade={joy_part:.3f} "
-                f"dano={harm_part:.3f} raw={raw:.3f}"
+                f"dano={harm_part:.3f} alivio={aversion_relief:.2f} raw={raw:.3f}"
             ),
         )
 

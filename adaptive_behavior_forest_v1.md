@@ -12,7 +12,7 @@ V1:
 - decisão alimentar
 - frontend simples mostrando a decisão
 
-Não teremos ainda:
+Não teremos ainda (na V1):
 - múltiplos agentes
 - movimento/grid
 - sede, medo, dor ou energia
@@ -20,6 +20,10 @@ Não teremos ainda:
 - sons/sprites
 - LLM
 - treinamento de rede neural
+
+> Atualização: múltiplos agentes, movimento/grid (mapa com posição e uma árvore de
+> decisão de movimento separada) e sprites já existem no código atual — evoluções
+> pós-V1 registradas aqui só para não perder o histórico da spec original.
 
 ## Arquitetura
 

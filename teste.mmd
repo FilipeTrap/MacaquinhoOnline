@@ -1,0 +1,47 @@
+flowchart TD
+
+    START["🐒 ESTADO DO AGENTE"]
+
+    START --> HUNGER["Fome<br/>0–100"]
+    START --> ENERGY["Energia<br/>0–100"]
+    START --> MOOD["Felicidade<br/>0–100"]
+
+    HUNGER --> NORMALIZE["Normalizar fome<br/>hunger / 100"]
+
+    NORMALIZE --> WEIGHT["Aplicar peso da fome<br/><br/>hunger_weight = 0.223<br/>Tipo: individual<br/>Adaptativo: SIM"]
+
+    WEIGHT --> NEED["Influência da fome<br/><br/>hunger_influence =<br/>hunger_normalized × hunger_weight"]
+
+    NEED --> SATIETY["Influência da saciedade<br/><br/>food_satiety × satiety_weight"]
+
+    SATIETY --> PREFERENCE["Preferência pelo alimento<br/><br/>food_preference × preference_weight"]
+
+    PREFERENCE --> EXPERIENCE["Experiência anterior<br/><br/>experiência positiva → aumenta<br/>experiência negativa → reduz"]
+
+    EXPERIENCE --> DAMAGE["Dano / efeito negativo<br/><br/>alimento prejudicial → penalidade"]
+
+    DAMAGE --> SUM["SOMA DOS FATORES<br/><br/>raw_score =<br/>fome + preferência + experiência<br/>− saciedade − dano"]
+
+    SUM --> SIGMOID["SIGMOID<br/><br/>score = 1 / (1 + e⁻raw_score)<br/><br/>Resultado: 0–1"]
+
+    SIGMOID --> DECISION{"DECISÃO"}
+
+    DECISION -->|"score alto"| EAT["🍌 MAIOR TENDÊNCIA<br/>a procurar/comer alimento"]
+
+    DECISION -->|"score baixo"| WAIT["⏸ MENOR TENDÊNCIA<br/>a procurar alimento"]
+
+    EAT --> CONSEQUENCE["CONSEQUÊNCIA"]
+
+    CONSEQUENCE --> HAPPINESS["Atualizar felicidade"]
+
+    CONSEQUENCE --> HUNGER_UPDATE["Atualizar fome"]
+
+    HAPPINESS --> EXPERIENCE_UPDATE["Registrar experiência"]
+
+    HUNGER_UPDATE --> EXPERIENCE_UPDATE
+
+    EXPERIENCE_UPDATE --> WEIGHT_UPDATE["Aprendizado<br/><br/>Pesos podem ser modificados<br/>pela experiência"]
+
+    WEIGHT_UPDATE --> END["Estado futuro do agente"]
+
+    END --> START
