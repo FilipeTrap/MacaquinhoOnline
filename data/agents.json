@@ -1,0 +1,125 @@
+[
+  {
+    "id": "A1",
+    "name": "A1",
+    "hunger": 50.0,
+    "happiness": 40.0,
+    "status": "normal",
+    "sick_left": 0,
+    "feast": 0,
+    "weights": {
+      "hunger": 0.223,
+      "satiety": 1.0,
+      "environment": 0.8,
+      "social": 0.15,
+      "eaten": 1.0,
+      "seen": 0.25,
+      "aversion": 0.35,
+      "happiness": 0.8
+    },
+    "experience": {
+      "banana": {
+        "eaten": 2.25,
+        "seen": 0.1
+      },
+      "casca": {
+        "eaten": 0.25,
+        "seen": 0.9
+      },
+      "pepino": {
+        "eaten": 1.0,
+        "seen": 0.05
+      }
+    },
+    "relations": {
+      "A2": 0.9,
+      "A3": 0.92
+    },
+    "last_action": {
+      "action": "MISS",
+      "food": "banana"
+    }
+  },
+  {
+    "id": "A2",
+    "name": "A2",
+    "hunger": 100.0,
+    "happiness": 40.0,
+    "status": "normal",
+    "sick_left": 0,
+    "feast": 0,
+    "weights": {
+      "hunger": 0.9,
+      "satiety": -0.5,
+      "environment": 0.05,
+      "social": 0.05,
+      "eaten": 1.1,
+      "seen": 0.2,
+      "aversion": 0.55,
+      "happiness": 0.3
+    },
+    "experience": {
+      "banana": {
+        "eaten": 1.5,
+        "seen": 0.25
+      },
+      "casca": {
+        "eaten": 1.75,
+        "seen": 0.6
+      },
+      "pepino": {
+        "eaten": 0.25,
+        "seen": 0.2
+      }
+    },
+    "relations": {
+      "A1": 0.98,
+      "A3": 0.98
+    },
+    "last_action": {
+      "action": "MISS",
+      "food": "banana"
+    }
+  },
+  {
+    "id": "A3",
+    "name": "A3",
+    "hunger": 0.0,
+    "happiness": 60.0,
+    "status": "normal",
+    "sick_left": 0,
+    "feast": 1,
+    "weights": {
+      "hunger": 0.5,
+      "satiety": 0.2,
+      "environment": 0.15,
+      "social": 1.2,
+      "eaten": 0.9,
+      "seen": 0.3,
+      "aversion": 0.4,
+      "happiness": 1.0
+    },
+    "experience": {
+      "banana": {
+        "eaten": 2.75,
+        "seen": 0.0
+      },
+      "casca": {
+        "eaten": 0.5,
+        "seen": 0.85
+      },
+      "pepino": {
+        "eaten": 0.0,
+        "seen": 0.25
+      }
+    },
+    "relations": {
+      "A1": 0.94,
+      "A2": 0.92
+    },
+    "last_action": {
+      "action": "EAT",
+      "food": "banana"
+    }
+  }
+]

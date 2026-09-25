@@ -1,0 +1,196 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f4efe6;
+  color: #2b241c;
+  font: 16px/1.4 "Segoe UI", sans-serif;
+}
+
+.board {
+  width: min(980px, calc(100% - 32px));
+  margin: 24px auto;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+}
+
+h1, h2, h3 {
+  margin: 0;
+}
+
+h1 {
+  font-size: 1.6rem;
+}
+
+.time {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.monkeys {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.monkey, .panel {
+  background: #fffdf8;
+  border: 1px solid #e4d8c4;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.monkey h2 {
+  font-size: 1.15rem;
+}
+
+.name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.status {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #efe6d6;
+  border-radius: 999px;
+  padding: 4px 8px;
+}
+
+.status.sick {
+  background: #f0d0c8;
+  color: #8a3b2a;
+}
+
+.stats {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.fill.joy {
+  background: #c4a35a;
+}
+
+.action {
+  min-height: 1.4em;
+  margin: 10px 0;
+  font-weight: 700;
+}
+
+.relations {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.relations h3, .panel h2 {
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bar-row, .food-row {
+  display: grid;
+  grid-template-columns: 92px 1fr 48px;
+  gap: 8px;
+  align-items: center;
+}
+
+.food-row {
+  grid-template-columns: 1fr auto auto auto;
+  margin: 8px 0;
+}
+
+.track {
+  height: 12px;
+  background: #efe6d6;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: #2f6b3a;
+}
+
+.fill.hunger {
+  background: #b86b2a;
+}
+
+.panel {
+  margin-top: 16px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+button, input {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  background: #2f6b3a;
+  color: white;
+  cursor: pointer;
+}
+
+button.secondary, .food-row button {
+  background: #efe6d6;
+  color: #2b241c;
+}
+
+.food-row input {
+  width: 64px;
+  padding: 8px;
+  border: 1px solid #e4d8c4;
+  border-radius: 8px;
+}
+
+.hint {
+  margin: 8px 0 0;
+  color: #5c5144;
+}
+
+.qty {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+pre {
+  margin: 0;
+  padding: 12px;
+  overflow: auto;
+  max-height: 240px;
+  background: #2b241c;
+  color: #f4efe6;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+  .monkeys {
+    grid-template-columns: 1fr;
+  }
+}

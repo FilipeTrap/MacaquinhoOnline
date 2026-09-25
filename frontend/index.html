@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Floresta</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="board">
+    <header class="top">
+      <h1>🐒 Floresta</h1>
+      <p id="time" class="time">Tempo 0</p>
+    </header>
+
+    <section id="monkeys" class="monkeys"></section>
+
+    <section class="panel">
+      <h2>Comida</h2>
+      <div id="foods"></div>
+    </section>
+
+    <div class="actions">
+      <button id="tick" type="button">Passar tempo</button>
+      <button id="reset" type="button" class="secondary">Reset</button>
+    </div>
+    <p class="hint">Cada clique passa 1 unidade. O tempo não corre sozinho. A fome sobe 10. Doente, ela sobe 20, a felicidade desce 10, e ele não come por 4 tempos.</p>
+
+    <section class="panel">
+      <h2>Trace</h2>
+      <pre id="trace">Ainda não passou tempo.</pre>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

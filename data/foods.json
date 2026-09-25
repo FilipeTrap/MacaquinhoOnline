@@ -1,0 +1,26 @@
+[
+  {
+    "id": "banana",
+    "name": "Banana",
+    "satiety": 80,
+    "harm": 0,
+    "happiness": 10,
+    "quantity": 0
+  },
+  {
+    "id": "pepino",
+    "name": "Pepino",
+    "satiety": 50,
+    "harm": 0,
+    "happiness": 0,
+    "quantity": 0
+  },
+  {
+    "id": "casca",
+    "name": "Casca",
+    "satiety": 10,
+    "harm": 1,
+    "happiness": -10,
+    "quantity": 0
+  }
+]
