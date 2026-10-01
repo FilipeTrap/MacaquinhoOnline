@@ -102,17 +102,41 @@ R.stepMove = function stepMove(m){
     m.tx = m.px; m.ty = m.py;
     return;
   }
-  const n = m.path[0];
-  const dx = n.x - m.px, dy = n.y - m.py;
-  const dist = Math.hypot(dx, dy);
-  if (dist <= R.STEP){
-    m.px = n.x; m.py = n.y;
-    m.path.shift();
-  } else {
-    m.px += dx / dist * R.STEP;
-    m.py += dy / dist * R.STEP;
+  // Correndo: pulo de 2 passos. Se o destino está a 1 passo ou menos, anda normal.
+  const run = m.running && R.pathRemaining(m) > R.STEP;
+  let budget = run ? R.STEP * R.RUN_MULT : R.STEP;
+  const x0 = m.px, y0 = m.py;
+  while (budget > 0 && m.path.length){
+    const n = m.path[0];
+    const dx = n.x - m.px, dy = n.y - m.py;
+    const dist = Math.hypot(dx, dy);
+    if (dist <= budget){
+      m.px = n.x; m.py = n.y;
+      m.path.shift();
+      budget -= dist;
+      if (!run) break;
+    } else {
+      m.px += dx / dist * budget;
+      m.py += dy / dist * budget;
+      budget = 0;
+    }
+  }
+  if (run){
+    m.energia -= R.RUN_EXTRA;
+    m.anim = {kind:'jump', x0, y0, t0:performance.now(), dur:Math.min(350, R.tickMs()*0.9)};
+    if (R.tickMs() >= 30) R.addFx({type:'dust', x:x0, y:y0, life:14});
   }
   m.tx = m.px; m.ty = m.py;
+};
+
+R.pathRemaining = function pathRemaining(m){
+  let d = 0, x = m.px, y = m.py;
+  (m.path || []).forEach(n => { d += Math.hypot(n.x - x, n.y - y); x = n.x; y = n.y; });
+  return d;
+};
+
+R.tickMs = function tickMs(){
+  return 1000 / R.SPEEDS[R.S.speed].tps;
 };
 
 R.awaySpot = function awaySpot(m){
@@ -133,37 +157,45 @@ R.awaySpot = function awaySpot(m){
   return {x: tx, y};
 };
 
-R.fallBeside = function fallBeside(m, ladderX){
+// side: -1 cai à esquerda da escada, 1 cai à direita
+R.fallBeside = function fallBeside(m, ladderX, side){
+  const x0 = m.px, y0 = m.py;
   R.clearPath(m);
   m.climb = 0;
   m.fell = true;
-  m.px = ladderX - 50;
+  m.px = ladderX + side * 50;
   m.py = R.FLOOR;
   m.tx = m.px;
   m.ty = m.py;
+  m.anim = {kind:'fall', x0, y0, side, t0:performance.now(), dur:Math.min(650, R.tickMs()*0.95)};
 };
 
-R.atBananaBase = function atBananaBase(m){
-  return Math.abs(m.px - R.LADDER_X) < 55
-    && Math.abs(m.py - R.FLOOR) < 28
-    && !R.isOnBananaLadder(m)
-    && R.levelOf(m) === 'floor';
+// Lado da escada mais perto de h: -1 esquerda, 1 direita
+R.ladderSide = function ladderSide(h, ladderX){
+  return h.px < ladderX ? -1 : 1;
 };
 
-R.atEmptyBase = function atEmptyBase(m){
-  return Math.abs(m.px - R.EMPTY_LADDER_X) < 55
-    && Math.abs(m.py - R.FLOOR) < 28
-    && !R.isOnEmptyLadder(m);
+// Parado no chão, colado ao lado da escada (não serve de longe)
+R.besideLadder = function besideLadder(h, ladderX){
+  return R.levelOf(h) === 'floor'
+    && Math.abs(h.py - R.FLOOR) < 10
+    && Math.abs(Math.abs(h.px - ladderX) - R.SIDE_GAP) <= 16
+    && (!h.path || !h.path.length);
+};
+
+R.runToLadder = function runToLadder(h, ladderX){
+  h.running = true;
+  R.goTo(h, ladderX + R.ladderSide(h, ladderX) * R.SIDE_GAP, R.FLOOR);
 };
 
 R.hit = function hit(h, t){
   const onBanana = t.climb > 0 || (Math.abs(t.px - R.LADDER_X) < 40 && t.py < R.FLOOR - 40);
   const onEmpty = R.isOnEmptyLadder(t);
 
-  // Sacudir a escada da banana: só do pé dela
+  // Sacudir a escada da banana: só do lado dela
   if (onBanana){
-    if (!R.atBananaBase(h)){
-      R.goTo(h, R.LADDER_X - 45, R.FLOOR);
+    if (!R.besideLadder(h, R.LADDER_X)){
+      R.runToLadder(h, R.LADDER_X);
       return;
     }
     t.fel -= 18; t.vida -= 8;
@@ -173,7 +205,7 @@ R.hit = function hit(h, t){
     h.energia -= 3; h.fel -= 2;
     t.hitClimbing++; h.punisher++;
     R.S.stats.inter++; R.S.win.inter++;
-    R.fallBeside(t, R.LADDER_X);
+    R.fallBeside(t, R.LADDER_X, -R.ladderSide(h, R.LADDER_X));
     R.addLog(`${h.name} sacudiu a escada e ${t.name} caiu.`, 'hit');
     R.addFx({type:'hit', slot:t.slot, life:18});
     return;
@@ -181,8 +213,8 @@ R.hit = function hit(h, t){
 
   // Sacudir escada vazia
   if (onEmpty){
-    if (!R.atEmptyBase(h)){
-      R.goTo(h, R.EMPTY_LADDER_X - 45, R.FLOOR);
+    if (!R.besideLadder(h, R.EMPTY_LADDER_X)){
+      R.runToLadder(h, R.EMPTY_LADDER_X);
       return;
     }
     t.fel -= 18; t.vida -= 8;
@@ -190,7 +222,7 @@ R.hit = function hit(h, t){
     t.medo[h.slot] = R.fear(t, h) + R.FEAR_HIT;
     t.flash = 14;
     h.energia -= 3; h.fel -= 2;
-    R.fallBeside(t, R.EMPTY_LADDER_X);
+    R.fallBeside(t, R.EMPTY_LADDER_X, -R.ladderSide(h, R.EMPTY_LADDER_X));
     R.addLog(`${h.name} sacudiu a escada e ${t.name} caiu.`, 'hit');
     R.addFx({type:'hit', slot:t.slot, life:18});
     return;
@@ -198,6 +230,7 @@ R.hit = function hit(h, t){
 
   // Briga no chão / loft: precisa chegar perto
   const ty = R.levelOf(t) === 'loft' ? R.LOFT_Y : R.FLOOR;
+  h.running = true;
   if (Math.hypot(h.px - t.px, h.py - t.py) > 55){
     R.goTo(h, t.px + (h.px < t.px ? -34 : 34), ty);
     return;

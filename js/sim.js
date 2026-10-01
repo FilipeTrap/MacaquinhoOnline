@@ -24,7 +24,7 @@ R.newMonkey = function newMonkey(slot, gen){
     net, target:R.copyNet(net), buf:[], strong:[], steps:0, age:0,
     fome:25+Math.random()*20, energia:70+Math.random()*20, vida:100, fel:55,
     climb:0, fell:false, sleeping:false, act:0, lastExp:null, raiva:{}, medo:{}, path:[], goal:null, counts:new Map(),
-    restFor:0, recoverFor:0,
+    restFor:0, recoverFor:0, running:false, anim:null,
     obsClimb:[], obsFree:[], showers:0, hitClimbing:0, punisher:0, bananas:0,
     px:x, py:R.FLOOR, tx:x, ty:R.FLOOR, flash:0, dead:false};
 };
@@ -56,7 +56,7 @@ R.tick = function tick(){
   const keys = ms.map(R.coarseKey);
   const acts = ms.map((m, i) => R.choose(m, states[i]));
   const f0 = ms.map(m => m.fel), v0 = ms.map(m => m.vida);
-  ms.forEach(m => { m.fell = false; m.sleeping = false; });
+  ms.forEach(m => { m.fell = false; m.sleeping = false; m.running = false; });
 
   ms.forEach((m, i) => {
     if (m.restFor > 0 || m.recoverFor > 0) return;

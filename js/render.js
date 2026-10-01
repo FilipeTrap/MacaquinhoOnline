@@ -39,12 +39,44 @@ R.drawLadder = function drawLadder(x, yBottom, yTop){
   ctx.globalAlpha = 1;
 };
 
+// Pose desenhada: pulo (arco) e queda (gravidade + tombo para o lado)
+R.animPose = function animPose(m, now){
+  const a = m.anim;
+  const still = {x:m.px, y:m.py, ground:m.py, rot:0};
+  if (!a) return still;
+  const p = Math.min(1, (now - a.t0) / a.dur);
+  if (p >= 1){
+    if (a.kind === 'fall') R.addFx({type:'dust', x:m.px, y:m.py, life:16});
+    m.anim = null;
+    return still;
+  }
+  if (a.kind === 'jump'){
+    const x = a.x0 + (m.px - a.x0)*p, gy = a.y0 + (m.py - a.y0)*p;
+    const dir = Math.sign(m.px - a.x0) || 1, s = Math.sin(Math.PI*p);
+    return {x, y:gy - s*26, ground:gy, rot:dir*0.25*s};
+  }
+  // queda: 80% do tempo caindo, 20% num quique curto
+  const q = Math.min(1, p/0.8);
+  const x = a.x0 + (m.px - a.x0)*q;
+  if (p < 0.8) return {x, y:a.y0 + (m.py - a.y0)*q*q, ground:m.py, rot:a.side*1.6*q};
+  const b = (p - 0.8)/0.2;
+  return {x, y:m.py - Math.sin(Math.PI*b)*10, ground:m.py, rot:a.side*1.6*(1 - b)};
+};
+
 R.drawMonkey = function drawMonkey(m, sel){
   const ctx = R.ctx, C = R.C;
-  const x = m.px, y = m.py, face = '#EBCB9F';
-  ctx.save(); ctx.translate(x, y);
+  const pose = R.animPose(m, performance.now());
+  const x = pose.x, y = pose.y, gy = pose.ground, face = '#EBCB9F';
+  m.drawX = x; m.drawY = y;
+  ctx.save(); ctx.translate(x, gy);
   if (sel){ ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.ellipse(0, 2, 30, 8, 0, 0, Math.PI*2); ctx.stroke(); ctx.setLineDash([]); }
-  ctx.fillStyle = 'rgba(0,0,0,.16)'; ctx.beginPath(); ctx.ellipse(0, 2, 22, 5, 0, 0, Math.PI*2); ctx.fill();
+  const sh = Math.max(0.4, 1 - (gy - y)/120);
+  ctx.fillStyle = 'rgba(0,0,0,.16)'; ctx.beginPath(); ctx.ellipse(0, 2, 22*sh, 5*sh, 0, 0, Math.PI*2); ctx.fill();
+  ctx.font = '600 13px "Bricolage Grotesque", system-ui, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle = R.COLLARS[m.slot]; ctx.fillText(m.name, 2, 20);
+  ctx.restore();
+  ctx.save(); ctx.translate(x, y);
+  if (pose.rot){ ctx.translate(0, -30); ctx.rotate(pose.rot); ctx.translate(0, 30); }
   const fur = m.flash > 0 ? C.bruise : m.fur;
   ctx.strokeStyle = fur; ctx.lineWidth = 5; ctx.lineCap = 'round';
   ctx.beginPath(); ctx.moveTo(-12, -14); ctx.bezierCurveTo(-34, -10, -40, -36, -26, -46); ctx.stroke();
@@ -69,11 +101,10 @@ R.drawMonkey = function drawMonkey(m, sel){
   if (maxAnger > 55 && !m.sleeping && !scared){ ctx.strokeStyle = C.bruise; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-1,-55); ctx.lineTo(5,-53); ctx.moveTo(13,-55); ctx.lineTo(8,-53); ctx.stroke(); }
   ctx.strokeStyle = '#1D2A1B'; ctx.lineWidth = 1.4; ctx.beginPath();
   const mood = (m.fel - 50)/50*3; ctx.moveTo(2, -43); ctx.quadraticCurveTo(6, -43 + mood, 10, -43); ctx.stroke();
-  const icon = ['','🍽️','💤','🧗','👊','👊','🤲','🤲'][m.act];
-  if (icon){ ctx.font = '16px system-ui, "Apple Color Emoji", "Segoe UI Emoji", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(icon, 4, -70); }
-  ctx.font = '600 13px "Bricolage Grotesque", system-ui, sans-serif'; ctx.textAlign = 'center';
-  ctx.fillStyle = R.COLLARS[m.slot]; ctx.fillText(m.name, 2, 20);
   ctx.restore();
+  let icon = ['','🍽️','💤','🧗','👊','👊','🤲','🤲'][m.act];
+  if (icon === '👊' && m.running) icon = '💨👊';
+  if (icon){ ctx.font = '16px system-ui, "Apple Color Emoji", "Segoe UI Emoji", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(icon, x + 4, y - 70); }
 };
 
 R.sameLevel = function sameLevel(a, c){
@@ -142,9 +173,15 @@ R.drawScene = function drawScene(){
       ctx.globalAlpha = 1;
     } else if (f.type === 'hit'){
       const m = S.monkeys[f.slot]; if (!m) return;
+      const mx = m.drawX ?? m.px, my = m.drawY ?? m.py;
       ctx.strokeStyle = C.bruise; ctx.lineWidth = 3; ctx.globalAlpha = f.life/18;
       const r = 12 + (18 - f.life);
-      for (let i = 0; i < 8; i++){ const a = i*Math.PI/4; ctx.beginPath(); ctx.moveTo(m.px + Math.cos(a)*r*.5, m.py - 50 + Math.sin(a)*r*.5); ctx.lineTo(m.px + Math.cos(a)*r, m.py - 50 + Math.sin(a)*r); ctx.stroke(); }
+      for (let i = 0; i < 8; i++){ const a = i*Math.PI/4; ctx.beginPath(); ctx.moveTo(mx + Math.cos(a)*r*.5, my - 50 + Math.sin(a)*r*.5); ctx.lineTo(mx + Math.cos(a)*r, my - 50 + Math.sin(a)*r); ctx.stroke(); }
+      ctx.globalAlpha = 1;
+    } else if (f.type === 'dust'){
+      const k = f.life/16, r = 4 + (16 - f.life)*0.9;
+      ctx.fillStyle = C.muted; ctx.globalAlpha = Math.min(1, k)*0.6;
+      for (let i = -1.5; i <= 1.5; i++){ ctx.beginPath(); ctx.arc(f.x + i*r*1.6, f.y - 3 - Math.abs(i)*2, r*0.6, 0, Math.PI*2); ctx.fill(); }
       ctx.globalAlpha = 1;
     }
     f.life--;
