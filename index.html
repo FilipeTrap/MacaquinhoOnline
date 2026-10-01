@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recinto — macacos que aprendem sozinhos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <h1>Recinto</h1>
+  <p>Três macacos, pepinos no canto, uma banana no alto da escada e um chuveiro de água fria. Cada um tem um cérebro próprio que começa vazio e aprende, instante a instante, só com o que acontece aqui dentro.</p>
+</header>
+
+<main class="grid">
+  <section class="stage">
+    <canvas id="scene" aria-label="Recinto com os macacos. Toque num macaco para selecioná-lo."></canvas>
+    <div class="timebar">
+      <button class="btn play" id="play">▶ Rodar</button>
+      <button class="btn" id="step">Avançar 1 instante</button>
+      <div class="seg" id="speeds" role="group" aria-label="Velocidade"></div>
+      <span class="clock" id="clock">Dia 1, instante 0</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="s-climbs">0</b><span>subidas na escada</span></div>
+      <div class="stat"><b id="s-inter">0</b><span>derrubados com surra</span></div>
+      <div class="stat"><b id="s-bananas">0</b><span>bananas pegas</span></div>
+      <div class="stat"><b id="s-showers">0</b><span>banhos de água fria</span></div>
+      <div class="stat key"><b id="s-wet">0 de 3</b><span>no grupo já levaram água</span></div>
+    </div>
+    <div class="chartwrap">
+      <h2>Como o grupo muda ao longo dos dias</h2>
+      <div class="legend"><span><i style="background:var(--banana)"></i>subidas por dia</span><span><i style="background:var(--bruise)"></i>% de subidas punidas com surra</span></div>
+      <canvas id="chart"></canvas>
+    </div>
+  </section>
+
+  <aside class="side">
+    <div class="monkeybox">
+      <div class="tabs" id="tabs" role="group" aria-label="Escolher macaco"></div>
+      <div class="mname"><h3 id="m-name">—</h3><small id="m-gen"></small></div>
+      <div class="doing" id="m-doing"></div>
+      <div id="m-bars"></div>
+      <div class="hist" id="m-hist"></div>
+      <div class="prefs">
+        <h4>O que ele quer fazer agora</h4>
+        <p>Valor que o cérebro dele dá a cada ação neste momento.</p>
+        <div id="m-q"></div>
+      </div>
+      <div class="trainer">
+        <button class="btn good" id="reward">Recompensar última ação</button>
+        <button class="btn bad" id="punish">Punir última ação</button>
+      </div>
+    </div>
+
+    <div class="exp">
+      <h2>Experimento</h2>
+      <label class="row"><span>Água fria quando alguém pega a banana</span><input type="checkbox" id="water" checked></label>
+      <label class="row" for="conf"><span>Conformidade</span><b id="conf-v">40%</b></label>
+      <input type="range" id="conf" min="0" max="100" value="40">
+      <div class="hint">Vontade de agir como o grupo age: juntar-se a uma surra, evitar o que ninguém faz. Em 0%, cada um aprende só por conta própria.</div>
+      <label class="row" for="cur"><span>Curiosidade</span><b id="cur-v">50%</b></label>
+      <input type="range" id="cur" min="0" max="100" value="50">
+      <div class="hint">Prazer extra em testar ações que ele ainda fez pouco.</div>
+      <div class="actions">
+        <button class="btn" id="swap">Trocar macaco</button>
+        <button class="btn" id="reset">Recomeçar do zero</button>
+      </div>
+      <ol class="steps">
+        <li>Rode em 25× ou 200× até quase ninguém mais subir a escada (uns 30 dias).</li>
+        <li>Desligue a água.</li>
+        <li>Troque um macaco por vez e veja se os novatos apanham.</li>
+        <li>Depois de trocar os três, confira: ninguém levou água, e ainda assim batem?</li>
+      </ol>
+    </div>
+
+    <div>
+      <h2>Diário do recinto</h2>
+      <ol id="log"></ol>
+    </div>
+  </aside>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/network.js"></script>
+<script src="js/emotions.js"></script>
+<script src="js/actions.js"></script>
+<script src="js/policy.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
